@@ -1808,6 +1808,29 @@ Auth0.prototype.verifySMSCode = function(attrs, cb) {
   return this.login(attrs, cb);
 };
 
+Auth0.prototype.getUserCountry = function(cb) {
+  var protocol = 'https:';
+  var domain = this._domain;
+  var endpoint = "/user/geoloc/country";
+  var url = joinUrl(protocol, domain, endpoint);
+
+  if (this._useJSONP) {
+    return cb({});
+  }
+
+  reqwest({
+    url: same_origin(protocol, domain) ? endpoint : url,
+    method: "get",
+    type: "json",
+    headers: this._getClientInfoHeader(),
+    crossOrigin: !same_origin(protocol, domain),
+    success: function(resp) {
+      cb(null, resp.country_code)
+    },
+    error: cb
+  });
+}
+
 function prepareResult(result) {
   return !result || typeof result !== "object"
     ? undefined
